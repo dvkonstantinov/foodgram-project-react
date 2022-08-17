@@ -1,5 +1,3 @@
-import csv
-
 from django.core.exceptions import ObjectDoesNotExist
 from django.http import HttpResponse
 from django_filters.rest_framework import DjangoFilterBackend
@@ -110,12 +108,11 @@ class RecipeViewSet(viewsets.ModelViewSet):
     )
     def download_shopping_cart(self, request):
         ingredients = get_ingredient_sum(request)
-        response = HttpResponse(content_type='application/csv')
-        response['Content-Disposition'] = ('inline; filename="inredients.csv"')
-        writer = csv.writer(response)
-        writer.writerow(['Список ингредиентов:'])
+        response = HttpResponse(content_type='text/plain')
+        response['Content-Disposition'] = ('attachment;'
+                                           'filename="inredients.txt"')
+        response.write('Список ингредиентов:\n')
         for item in ingredients:
-            writer.writerow(
-                [item[0], item[1], item[2]])
-        writer.writerow(['Список сгенерирован автоматически. Foodgram'])
+            response.write(f'{item[0]} ({item[1]}) — {item[2]}\n')
+        response.write('Список сгенерирован автоматически. Foodgram')
         return response
