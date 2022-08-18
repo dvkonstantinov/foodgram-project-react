@@ -20,13 +20,10 @@ class UserViewSet(viewsets.ModelViewSet):
     def create(self, request, *args, **kwargs):
         serializer = UserCreateSerializer(data=request.data)
         queryset = User.objects.all()
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data,
-                            status=status.HTTP_201_CREATED)
-        else:
-            return Response(serializer.errors,
-                            status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        serializer.save()
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+
 
     @action(
         methods=["get"],
@@ -49,21 +46,19 @@ class UserViewSet(viewsets.ModelViewSet):
     )
     def change_password(self, request):
         user = self.request.user
-        print(user)
         serializer = self.get_serializer(
             data=request.data
         )
-        if serializer.is_valid():
-            if not user.check_password(serializer.data.get(
-                    "current_password")):
-                return Response(
-                    {"current_password": ["Указан неверный текущий пароль."]},
-                    status=status.HTTP_400_BAD_REQUEST)
-            user.set_password(serializer.data.get("new_password"))
-            user.save()
-            return Response({'message': 'Пароль успешно изменен.'},
-                            status=status.HTTP_204_NO_CONTENT)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        serializer.is_valid(raise_exception=True)
+        if not user.check_password(serializer.validated_data.get(
+                "current_password")):
+            return Response(
+                {"current_password": ["Указан неверный текущий пароль."]},
+                status=status.HTTP_400_BAD_REQUEST)
+        user.set_password(serializer.validated_data.get("new_password"))
+        user.save()
+        return Response({'message': 'Пароль успешно изменен.'},
+                        status=status.HTTP_204_NO_CONTENT)
 
     @action(
         methods=['post', 'delete'],
@@ -73,7 +68,7 @@ class UserViewSet(viewsets.ModelViewSet):
         serializer_class=SubscribeSerializer,
     )
     def subscribe_author(self, request, pk=None):
-        user = get_object_or_404(User, email=request.user.email)
+        user = request.user
         author = get_object_or_404(User, pk=pk)
         if request.method == 'POST':
             if user.id == author.id:
@@ -97,7 +92,7 @@ class UserViewSet(viewsets.ModelViewSet):
             try:
                 subscription = Subscription.objects.get(user=user,
                                                         author=author)
-            except ObjectDoesNotExist:
+            except Subscription.DoesNotExist:
                 return Response({'errors': 'Ошибка отписки. Возможно вы не '
                                            'подписаны на данного'
                                            'пользователя'},

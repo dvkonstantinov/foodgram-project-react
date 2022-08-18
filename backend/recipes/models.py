@@ -78,7 +78,7 @@ class RecipeIngredient(models.Model):
                                verbose_name='Рецепт')
     ingredient = models.ForeignKey(Ingredient,
                                    on_delete=models.CASCADE,
-                                   related_name='recipe_ingredient',
+                                   related_name='ingredient_recipe',
                                    verbose_name='Ингредиент')
     amount = models.PositiveSmallIntegerField(
         verbose_name='Количество ингредиента',
@@ -92,6 +92,11 @@ class RecipeIngredient(models.Model):
         verbose_name = 'Ингредиент в рецепте'
         verbose_name_plural = 'Ингредиенты в рецепте'
         ordering = ('-id',)
+        constraints = (
+            models.UniqueConstraint(
+                fields=('recipe', 'ingredient',),
+                name='pair recipe-ingredient is already exists'),
+        )
 
     def __str__(self):
         return f'{self.recipe} - {self.ingredient}'
@@ -106,14 +111,15 @@ class Favorite(models.Model):
                                on_delete=models.CASCADE,
                                related_name='favorite_recipe',
                                verbose_name='Рецепт')
-    constraints = (
-        models.UniqueConstraint(fields=('user', 'recipe'),
-                                name='unique recipe favorite'),)
 
     class Meta:
         ordering = ('-id',)
         verbose_name = 'Избранное'
         verbose_name_plural = 'Избранное'
+        constraints = (
+            models.UniqueConstraint(fields=('user', 'recipe'),
+                                    name='unique recipe favorite'),
+        )
 
     def __str__(self):
         return f'{self.user} - {self.recipe}'
@@ -128,14 +134,15 @@ class Cart(models.Model):
                                on_delete=models.CASCADE,
                                related_name='cart_recipe',
                                verbose_name='Рецепт')
-    constraints = (
-        models.UniqueConstraint(fields=('user', 'recipe'),
-                                name='unique user-recipe pair'),)
 
     class Meta:
         ordering = ('-id',)
         verbose_name = 'Список покупок'
         verbose_name_plural = 'Список покупок'
+        constraints = (
+            models.UniqueConstraint(fields=('user', 'recipe'),
+                                    name='unique user-recipe pair'),
+        )
 
     def __str__(self):
         return f'Покупки {self.user} - {self.recipe}'

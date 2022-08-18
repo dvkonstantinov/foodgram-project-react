@@ -22,17 +22,13 @@ class RecipeFilter(filters.FilterSet):
     tags = filters.AllValuesMultipleFilter(field_name='tags__slug')
 
     def filter_favorite(self, queryset, name, value):
+        user = self.request.user
         if value:
-            user = self.request.user
             return queryset.filter(favorite_recipe__user=user)
-        else:
-            user = self.request.user
-            return queryset.exclude(favorite_recipe__user=user)
+        return queryset.exclude(favorite_recipe__user=user)
 
     def filter_cart(self, queryset, name, value):
+        user = self.request.user
         if value:
-            user = self.request.user
             return queryset.filter(cart_recipe__user=user)
-        else:
-            user = self.request.user
-            return queryset.exclude(cart_recipe__user=user)
+        return queryset.exclude(cart_recipe__user=user)
