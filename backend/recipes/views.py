@@ -6,7 +6,7 @@ from rest_framework.response import Response
 
 from core.pagination import CustomPagination
 from .filters import IngredientFilter, RecipeFilter
-from .models import Cart, Favorite, Ingredient, Recipe, Tag
+from .models import Favorite, Ingredient, Recipe, Tag, Cart
 from .serializers import (IngredientSerializer, RecipeSerializer,
                           ShortRecipeSerializer, TagSerializer)
 from .utils.ingredient_sum import get_ingredient_sum
@@ -36,21 +36,20 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-    def _favorite_cart_actions(self, request, messages):
+# А если в целом, то как эта функция, как решение? Костыльно написана или
+# сойдет?
+    def _favorite_cart_actions(self, request, messages, modelname):
         user = self.request.user
-        modelname = ''
-        if 'favorite' in self.request.path:
-            modelname = Favorite
-        elif 'shopping_cart' in self.request.path:
-            modelname = Cart
         try:
             recipe = self.get_object()
-        except modelname.DoesNotExist:
+        except modelname.__class__.DoesNotExist:
             return Response({'errors': messages['not_found']},
                             status=status.HTTP_400_BAD_REQUEST)
         if request.method == 'POST':
-            _, created = modelname.objects.get_or_create(recipe=recipe,
-                                                         user=user)
+            _, created = modelname.__class__.objects.get_or_create(
+                recipe=recipe,
+                user=user
+            )
             if created:
                 serializer = ShortRecipeSerializer(recipe)
                 return Response(serializer.data,
@@ -60,8 +59,9 @@ class RecipeViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_400_BAD_REQUEST)
         if request.method == 'DELETE':
             try:
-                modelname.objects.get(recipe=recipe, user=user).delete()
-            except modelname.DoesNotExist:
+                modelname.__class__.objects.get(recipe=recipe,
+                                                user=user).delete()
+            except modelname.__class__.DoesNotExist:
                 return Response({'errors': messages['missing']},
                                 status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -73,12 +73,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, request, pk=None):
+        modelname = Favorite()
         messages = {
             'not_found': 'Такого рецепта не сушествует',
             'already_added': 'Рецепт уже в избранном',
             'missing': 'Рецепта нет в избранном',
         }
-        return self._favorite_cart_actions(request, messages)
+        return self._favorite_cart_actions(request, messages, modelname)
 
     @action(
         methods=["post", "delete"],
@@ -87,12 +88,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def shopping_cart(self, request, pk=None):
+        modelname = Cart()
         messages = {
             'not_found': 'Такого рецепта не сушествует',
             'already_added': 'Рецепт уже в корзине',
             'missing': 'Рецепта нет в корзине',
         }
-        return self._favorite_cart_actions(request, messages)
+        return self._favorite_cart_actions(request, messages, modelname)
 
     @action(
         methods=["get"],

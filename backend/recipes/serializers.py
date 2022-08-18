@@ -142,7 +142,6 @@ class RecipeSerializer(serializers.ModelSerializer):
                                     ingredient=ingredient['id'],
                                     amount=ingredient['amount'])
             data_array.append(item)
-        print(data_array)
         RecipeIngredient.objects.bulk_create(data_array)
 
     def create(self, validated_data):
