@@ -28,25 +28,6 @@ class AddIngredientsToRecipeSerializer(serializers.ModelSerializer):
         fields = ['id', 'amount']
 
 
-# class GetRetrieveIngredientSerializer(serializers.ModelSerializer):
-#     id = serializers.PrimaryKeyRelatedField(read_only=True,
-#                                             source='ingredient.id')
-#     name = serializers.CharField(read_only=True,
-#                                  source='ingredient.name')
-#     measurement_unit = serializers.CharField(
-#         read_only=True,
-#         source='ingredient.measurement_unit'
-#     )
-#     amount = serializers.IntegerField(read_only=True)
-#
-#     class Meta:
-#         model = Ingredient
-#         fields = ['id',
-#                   'name',
-#                   'measurement_unit',
-#                   'amount'
-#                   ]
-
 class GetAmountSerializer(serializers.ModelSerializer):
     amount = serializers.IntegerField(read_only=True)
 
