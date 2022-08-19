@@ -38,15 +38,15 @@ class RecipeViewSet(viewsets.ModelViewSet):
 
 # А если в целом, то как эта функция, как решение? Костыльно написана или
 # сойдет?
-    def _favorite_cart_actions(self, request, messages, modelname):
+    def _favorite_cart_actions(self, request, messages, model):
         user = self.request.user
         try:
             recipe = self.get_object()
-        except modelname.__class__.DoesNotExist:
+        except model.DoesNotExist:
             return Response({'errors': messages['not_found']},
                             status=status.HTTP_400_BAD_REQUEST)
         if request.method == 'POST':
-            _, created = modelname.__class__.objects.get_or_create(
+            _, created = model.objects.get_or_create(
                 recipe=recipe,
                 user=user
             )
@@ -59,9 +59,8 @@ class RecipeViewSet(viewsets.ModelViewSet):
                                 status=status.HTTP_400_BAD_REQUEST)
         if request.method == 'DELETE':
             try:
-                modelname.__class__.objects.get(recipe=recipe,
-                                                user=user).delete()
-            except modelname.__class__.DoesNotExist:
+                model.objects.get(recipe=recipe, user=user).delete()
+            except model.DoesNotExist:
                 return Response({'errors': messages['missing']},
                                 status=status.HTTP_400_BAD_REQUEST)
             return Response(status=status.HTTP_204_NO_CONTENT)
@@ -73,13 +72,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def favorite(self, request, pk=None):
-        modelname = Favorite()
+        model = Favorite
         messages = {
             'not_found': 'Такого рецепта не сушествует',
             'already_added': 'Рецепт уже в избранном',
             'missing': 'Рецепта нет в избранном',
         }
-        return self._favorite_cart_actions(request, messages, modelname)
+        return self._favorite_cart_actions(request, messages, model)
 
     @action(
         methods=["post", "delete"],
@@ -88,13 +87,13 @@ class RecipeViewSet(viewsets.ModelViewSet):
         permission_classes=[permissions.IsAuthenticated]
     )
     def shopping_cart(self, request, pk=None):
-        modelname = Cart()
+        model = Cart
         messages = {
             'not_found': 'Такого рецепта не сушествует',
             'already_added': 'Рецепт уже в корзине',
             'missing': 'Рецепта нет в корзине',
         }
-        return self._favorite_cart_actions(request, messages, modelname)
+        return self._favorite_cart_actions(request, messages, model)
 
     @action(
         methods=["get"],
