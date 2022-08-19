@@ -36,8 +36,6 @@ class RecipeViewSet(viewsets.ModelViewSet):
     filterset_class = RecipeFilter
     permission_classes = (permissions.IsAuthenticatedOrReadOnly,)
 
-# А если в целом, то как эта функция, как решение? Костыльно написана или
-# сойдет?
     def _favorite_cart_actions(self, request, messages, model):
         user = self.request.user
         try:
