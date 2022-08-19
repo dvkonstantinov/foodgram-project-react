@@ -8,7 +8,7 @@ BASE_DIR = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 SECRET_KEY = os.getenv('SECRET_KEY', default='12345qwerty')
 
-DEBUG = True
+DEBUG = False
 
 ALLOWED_HOSTS = ['backend', '127.0.0.1', 'foodgram.dvkonstantinov.ru']
 
