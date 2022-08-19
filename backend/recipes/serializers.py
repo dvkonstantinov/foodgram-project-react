@@ -123,6 +123,10 @@ class RecipeSerializer(serializers.ModelSerializer):
             if ing['id'] in check_array:
                 raise serializers.ValidationError('Нельзя добавлять '
                                                   'один ингредиент дважды')
+            amount = ing['amount']
+            if int(amount) <= 0:
+                raise serializers.ValidationError('Число ингредиентов должно '
+                                                  'быть больше нуля')
             check_array.append(ing['id'])
         check_array.clear()
 
@@ -132,6 +136,12 @@ class RecipeSerializer(serializers.ModelSerializer):
                                                   'один тег дважды')
             check_array.append(tag)
         check_array.clear()
+        cooking_time = data.get('cooking_time')
+        if int(cooking_time) <= 0:
+            raise serializers.ValidationError({
+                'cooking_time': 'Время приготовления не может быть '
+                                'отрицательным'
+            })
         return data
 
     @staticmethod
