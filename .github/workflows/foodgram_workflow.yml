@@ -1,4 +1,4 @@
-name: Django-app workflow
+name: Foodgram workflow
 
 on:
   push:
@@ -47,6 +47,8 @@ jobs:
             sudo docker-compose stop
             sudo docker-compose rm backend
             sudo docker-compose rm frontend
+            mkdir foodgram
+            cd foodgram/
             touch .env
             echo DB_ENGINE=${{ secrets.DB_ENGINE }} >> .env
             echo DB_NAME=${{ secrets.DB_NAME }} >> .env
