@@ -147,9 +147,9 @@ sudo docker-compose exec backend python manage.py collectstatic
 Сайт размещен на выданном сервере яндекса. Подписка со временем закончится 
 и сайт перестанет работать.
 
-## Подробная документация по backend-у
-
-
+## Подробная документация по API
+Подробная документация по, по которой делался проект, размещена тут:
+[http://foodgram.dvkonstantinov.ru/api/docs/](http://foodgram.dvkonstantinov.ru/api/docs/)
 ## Автор
 dvkonstantinov
 telegram: https://t.me/Dvkonstantinov
