@@ -10,9 +10,10 @@ SECRET_KEY = os.getenv('SECRET_KEY', default='12345qwerty')
 
 DEBUG = True
 
-ALLOWED_HOSTS = ['backend', '127.0.0.1']
+ALLOWED_HOSTS = ['backend', '127.0.0.1', 'foodgram.dvkonstantinov.ru']
 
-CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1']
+CSRF_TRUSTED_ORIGINS = ['http://127.0.0.1',
+                        'http://foodgram.dvkonstantinov.ru']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
